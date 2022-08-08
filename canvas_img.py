@@ -263,9 +263,8 @@ class CanvasImage:
         """
         if mode == 'v':  # View mode
             self.canvas.unbind('<Motion>')
-
-            # self.canvas.bind('<ButtonPress-1>', self.v_lclick)  # Zooming
-            # self.canvas.bind('<B1-Motion>', self.v_ldrag)
+            self.canvas.unbind('<MouseWheel>')
+            self.canvas.unbind('<ButtonPress-3>')
             self.canvas.bind('<ButtonPress-1>', self.v_lclick)  # Moving
             self.canvas.bind('<B1-Motion>', self.v_ldrag)
 

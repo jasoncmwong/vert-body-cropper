@@ -7,7 +7,10 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 START_CROP_DIM = 384
-MIN_CROP_DIM = 100
+MIN_CROP_DIM = 128
+HEADER_FONT = ('Calibri', 16, 'bold')
+HEADER2_FONT = ('Calibri', 12, 'bold')
+HELP_FONT = ('Calibri', 12)
 
 
 class App(tk.Frame):
@@ -116,6 +119,37 @@ class App(tk.Frame):
         self.master.bind('c', lambda e: self.switch_mode(e.keysym))
         menu_bar.add_cascade(label='Tools', menu=tools_menu)
 
+        # Help menu
+        help_menu = tk.Menu(menu_bar, tearoff=False)
+        help_menu.add_command(label='Command info', command=self.display_help, accelerator='Ctrl+H')
+        self.master.bind('<Control-h>', lambda e: self.display_help())
+        menu_bar.add_cascade(label='Help', menu=help_menu)
+
+    def display_help(self):
+        help_win = tk.Toplevel(self.master)
+        help_win.title('Help')
+        help_frame = tk.Frame(help_win)
+        help_frame.pack()
+
+        file_l = []
+        file_l.append(tk.Label(help_frame, text='File menu', font=HEADER_FONT))
+        file_l.append(tk.Label(help_frame, text='Open image (Ctrl+O): Loads an image file to view and label', font=HEADER2_FONT))
+        file_l.append(tk.Label(help_frame, text='Save cropped (Ctrl+S): Saves the cropped vertebral body image into a .jpg file', font=HEADER2_FONT))
+        for l in file_l:
+            l.grid(sticky='w')
+
+        tools_l = []
+        tools_l.append(tk.Label(help_frame, text='Tools menu', font=HEADER_FONT))
+        tools_l.append(tk.Label(help_frame, text='View mode (V): Manipulate position of the views', font=HEADER2_FONT))
+        tools_l.append(tk.Label(help_frame, text='   -MOVE: Left mouse click, hold, and drag', font=HELP_FONT))
+        tools_l.append(tk.Label(help_frame, text='Crop mode (C): Crop out vertebral body images from the PA radiograph', font=HEADER2_FONT))
+        tools_l.append(tk.Label(help_frame, text='   -CROP OUT IMAGE: Left click', font=HELP_FONT))
+        tools_l.append(tk.Label(help_frame, text='   -CROPPING BOX DIMENSION ADJUST: Scroll wheel', font=HELP_FONT))
+        tools_l.append(tk.Label(help_frame, text='   -REMOVE PREVIOUS CROPPING BOX: Right click - removes previous cropping box (red) from the view', font=HELP_FONT))
+        for l in tools_l:
+            l.grid(sticky='w')
+        help_win.resizable(width=0, height=0)
+
     def _init_view(self):
         """
         Initializes widgets with the loaded x-ray image and pertinent info
@@ -161,7 +195,7 @@ class App(tk.Frame):
         Saves the cropped image in a .jpg file.
         :return:
         """
-        img_num = self.img_name[self.img_name.find('US')+2:-4]
+        img_num = self.img_name[:self.img_name.rfind('.')]
         file_name = tkfd.asksaveasfilename(defaultextension='.jpg',
                                            filetypes=[('JPG', '*.jpg')],
                                            initialfile='{0}-'.format(img_num))
@@ -240,7 +274,7 @@ class App(tk.Frame):
 
         if mode == 'v':
             self.img_view.canvas.delete(self.c_box)
-        elif mode == 'c':  # Contrast mode
+        elif mode == 'c':  # Cropping mode
             self.img_view.bind('<Motion>', self.c_move)  # Contrast
             self.img_view.bind('<MouseWheel>', self.c_scroll)
             self.img_view.bind('<ButtonPress-1>', self.c_lclick)

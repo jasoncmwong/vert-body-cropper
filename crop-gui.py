@@ -180,7 +180,9 @@ class App(tk.Frame):
         file_name = dlg.show()
 
         if file_name != '':
-            self.img = imageio.imread(file_name)[:, :, 0]
+            self.img = imageio.imread(file_name)
+            if len(self.img.shape) == 3:
+                self.img = self.img[:, :, 0]
             self.img_name = file_name[file_name.rfind('/')+1:]
             print('Opened ' + file_name)
 
